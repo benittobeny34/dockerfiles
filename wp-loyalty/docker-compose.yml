@@ -1,0 +1,48 @@
+version: '3'
+
+
+services:
+  #DATABASE
+  wployalty_db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    volumes:
+      - wployalty_db_data:/var/lib/mysql
+    ports:
+      - '3310:3306'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks:
+      - wployalty
+
+
+  wployalty_wordpress_site:
+    depends_on:
+      - wployalty_db
+    image: wordpress:php7.4-apache
+    ports:
+      - '8006:80'
+    restart: always
+    volumes:
+      - './:/var/www/html'
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+
+    environment:
+      WORDPRESS_DB_HOST: wployalty_db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DEBUG: true
+      WORDPRESS_DEBUG_LOG: true
+    networks:
+      - wployalty
+
+networks:
+  wployalty:
+volumes:
+  wployalty_db_data:
+
+
