@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  #DATABASE
+  discount_rules_db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    volumes:
+      - discount_rules:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: discount_rules
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks:
+      - discount_rules_site
+
+  discount_rules_wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - discount_rules_db
+    ports:
+      - "8003:80"
+    restart: always
+    volumes: ["./:/var/www/html"]
+    environment:
+      WORDPRESS_DB_HOST: discount_rules_db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - discount_rules_site
+networks:
+  discount_rules_site:
+volumes:
+  discount_rules:

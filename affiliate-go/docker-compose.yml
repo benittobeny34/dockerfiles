@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  affiliate_db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    volumes:
+      - affiliate_db_data:/var/lib/mysql # Using the existing volume
+    ports:
+      - "3301:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress # New database name
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks:
+      - affiliate
+
+  affiliate_wordpress_site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - affiliate_db
+    ports:
+      - "8001:80"
+    restart: always
+    volumes:
+      - ./:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    environment:
+      WORDPRESS_DB_HOST: affiliate_db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    networks:
+      - affiliate
+
+networks:
+  affiliate:
+
+volumes:
+  affiliate_db_data: # Reuse the existing volume
